@@ -15,12 +15,12 @@ public class PrefixCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args[0].length() != 1 || args.length != 1) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
             DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
-        DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix = args[0];
+        DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix = args[0];
         DiscordEcho.writeSettingsJson();
 
         DiscordEcho.sendMessage(e.getChannel(), "Command prefix now set to " + args[0]);

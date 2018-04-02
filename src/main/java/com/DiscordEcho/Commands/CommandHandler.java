@@ -1,6 +1,6 @@
 package com.DiscordEcho.Commands;
 
-import com.DiscordEcho.Configuration.ServerSettings;
+import com.DiscordEcho.Configuration.GuildSettings;
 import com.DiscordEcho.DiscordEcho;
 
 import java.util.HashMap;
@@ -10,7 +10,7 @@ public class CommandHandler {
     public static HashMap<String, Command> commands = new HashMap<>();
 
     public static void handleCommand(CommandParser.CommandContainer cmd){
-        ServerSettings settings = DiscordEcho.serverSettings.get(cmd.e.getGuild().getId());
+        GuildSettings settings = DiscordEcho.guildSettings.get(cmd.e.getGuild().getId());
 
         if (commands.containsKey(cmd.invoke.toLowerCase()) || settings.aliases.containsKey(cmd.invoke.toLowerCase())) {
 

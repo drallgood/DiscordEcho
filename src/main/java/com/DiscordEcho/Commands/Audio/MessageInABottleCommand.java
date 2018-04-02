@@ -3,8 +3,6 @@ package com.DiscordEcho.Commands.Audio;
 import com.DiscordEcho.Commands.Command;
 import com.DiscordEcho.Commands.CommandHandler;
 import com.DiscordEcho.DiscordEcho;
-import com.DiscordEcho.Listeners.AudioReceiveListener;
-import com.DiscordEcho.Listeners.AudioSendListener;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
@@ -21,7 +19,7 @@ public class MessageInABottleCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length < 2) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
             DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
@@ -39,7 +37,7 @@ public class MessageInABottleCommand implements Command {
                 return;
             }
         } catch (Exception ex) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
             DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }

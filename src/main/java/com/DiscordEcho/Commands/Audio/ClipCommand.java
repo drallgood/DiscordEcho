@@ -15,7 +15,7 @@ public class ClipCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 1 && args.length != 2) {
-            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix + usage(DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix));
+            DiscordEcho.sendMessage(e.getChannel(), DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix + usage(DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix));
             return;
         }
 
@@ -38,7 +38,7 @@ public class ClipCommand implements Command {
         try {
             time = Integer.parseInt(args[0]);
         } catch (Exception ex) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
             DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }

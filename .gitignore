@@ -5,6 +5,7 @@
 token
 shark_token
 settings.json
+server.json
 *.wav
 *.mp3
 

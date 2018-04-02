@@ -1,7 +1,7 @@
 package com.DiscordEcho.Commands.Settings;
 
 import com.DiscordEcho.Commands.Command;
-import com.DiscordEcho.Configuration.ServerSettings;
+import com.DiscordEcho.Configuration.GuildSettings;
 import com.DiscordEcho.DiscordEcho;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
@@ -17,7 +17,7 @@ public class AutoJoinCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length < 2) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
             DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
@@ -29,7 +29,7 @@ public class AutoJoinCommand implements Command {
             if (num == 0)
                 num = Integer.MAX_VALUE;
             else if (num < 0) {
-                String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+                String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
                 DiscordEcho.sendMessage(e.getChannel(), "Number must be positive!");
                 return;
             }
@@ -37,7 +37,7 @@ public class AutoJoinCommand implements Command {
         } catch (Exception ex) {
 
             if (!args[args.length - 1].equals("off")) {
-                String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+                String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
                 DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
                 return;
 
@@ -46,7 +46,7 @@ public class AutoJoinCommand implements Command {
             }
         }
 
-        ServerSettings settings = DiscordEcho.serverSettings.get(e.getGuild().getId());
+        GuildSettings settings = DiscordEcho.guildSettings.get(e.getGuild().getId());
 
         if (args[0].toLowerCase().equals("all") && args.length == 2) {
 

@@ -2,7 +2,6 @@ package com.DiscordEcho.Commands.Settings;
 
 import com.DiscordEcho.Commands.Command;
 import com.DiscordEcho.DiscordEcho;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 
@@ -16,21 +15,21 @@ public class AlertsCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 1) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
             DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
 
-        String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+        String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
 
         if (args[0].equals("off")) {
-            DiscordEcho.serverSettings.get(e.getGuild().getId()).alertBlackList.add(e.getAuthor().getId());
+            DiscordEcho.guildSettings.get(e.getGuild().getId()).alertBlackList.add(e.getAuthor().getId());
 
             e.getChannel().sendMessage("Alerts now off, message `" + prefix + "alerts on` to re-enable at any time").queue();
             DiscordEcho.writeSettingsJson();
 
         } else if (args[0].equals("on")) {
-            DiscordEcho.serverSettings.get(e.getGuild().getId()).alertBlackList.remove(e.getAuthor().getId());
+            DiscordEcho.guildSettings.get(e.getGuild().getId()).alertBlackList.remove(e.getAuthor().getId());
             e.getChannel().sendMessage("Alerts now on, message `" + prefix + "alerts off` to disable at any time").queue();
             DiscordEcho.writeSettingsJson();
         }

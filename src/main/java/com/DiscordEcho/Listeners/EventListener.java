@@ -1,12 +1,11 @@
 package com.DiscordEcho.Listeners;
 
-import com.DiscordEcho.Commands.Command;
+import com.DiscordEcho.Configuration.GuildSettings;
+import com.DiscordEcho.Configuration.ServerSettings;
 import com.DiscordEcho.DiscordEcho;
 import com.DiscordEcho.Commands.CommandHandler;
-import com.DiscordEcho.Configuration.ServerSettings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -20,12 +19,10 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import java.awt.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import static java.lang.Thread.sleep;
@@ -36,14 +33,14 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent e) {
-        DiscordEcho.serverSettings.put(e.getGuild().getId(), new ServerSettings(e.getGuild()));
+        DiscordEcho.guildSettings.put(e.getGuild().getId(), new GuildSettings(e.getGuild()));
         DiscordEcho.writeSettingsJson();
         System.out.format("Joined new server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent e) {
-        DiscordEcho.serverSettings.remove(e.getGuild().getId());
+        DiscordEcho.guildSettings.remove(e.getGuild().getId());
         DiscordEcho.writeSettingsJson();
         System.out.format("Left server '%s', connected to %s guilds\n", e.getGuild().getName(), e.getJDA().getGuilds().size());
     }
@@ -59,11 +56,11 @@ public class EventListener extends ListenerAdapter {
 
             int newSize = DiscordEcho.voiceChannelSize(e.getChannelJoined());
             int botSize = DiscordEcho.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
-            ServerSettings settings  = DiscordEcho.serverSettings.get(e.getGuild().getId());
+            GuildSettings settings  = DiscordEcho.guildSettings.get(e.getGuild().getId());
             int min = settings.autoJoinSettings.get(e.getChannelJoined().getId());
             
             if (newSize >= min && botSize < newSize) {  //check for tie with old server
-                if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
+                if (DiscordEcho.guildSettings.get(e.getGuild().getId()).autoSave)
                     DiscordEcho.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
                 DiscordEcho.joinVoiceChannel(e.getChannelJoined(), false);
@@ -81,12 +78,12 @@ public class EventListener extends ListenerAdapter {
         if(e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
             return;
 
-        int min = DiscordEcho.serverSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
+        int min = DiscordEcho.guildSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
         int size = DiscordEcho.voiceChannelSize(e.getChannelLeft());
 
         if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
 
-            if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
+            if (DiscordEcho.guildSettings.get(e.getGuild().getId()).autoSave)
                 DiscordEcho.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
             DiscordEcho.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());
@@ -110,11 +107,11 @@ public class EventListener extends ListenerAdapter {
 
             int newSize = DiscordEcho.voiceChannelSize(e.getChannelJoined());
             int botSize = DiscordEcho.voiceChannelSize(e.getGuild().getAudioManager().getConnectedChannel());
-            ServerSettings settings  = DiscordEcho.serverSettings.get(e.getGuild().getId());
+            GuildSettings settings  = DiscordEcho.guildSettings.get(e.getGuild().getId());
             int min = settings.autoJoinSettings.get(e.getChannelJoined().getId());
 
             if (newSize >= min && botSize < newSize) {  //check for tie with old server
-                if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
+                if (DiscordEcho.guildSettings.get(e.getGuild().getId()).autoSave)
                     DiscordEcho.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
                 DiscordEcho.joinVoiceChannel(e.getChannelJoined(), false);
@@ -127,12 +124,12 @@ public class EventListener extends ListenerAdapter {
         }
 
         //Check if bot needs to leave old channel
-        int min = DiscordEcho.serverSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
+        int min = DiscordEcho.guildSettings.get(e.getGuild().getId()).autoLeaveSettings.get(e.getChannelLeft().getId());
         int size = DiscordEcho.voiceChannelSize(e.getChannelLeft());
 
         if (size <= min && e.getGuild().getAudioManager().getConnectedChannel() == e.getChannelLeft()) {
 
-            if (DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
+            if (DiscordEcho.guildSettings.get(e.getGuild().getId()).autoSave)
                 DiscordEcho.writeToFile(e.getGuild());  //write data from voice channel it is leaving
 
             DiscordEcho.leaveVoiceChannel(e.getGuild().getAudioManager().getConnectedChannel());;
@@ -149,7 +146,7 @@ public class EventListener extends ListenerAdapter {
         if(e.getMember() == null || e.getMember().getUser() == null || e.getMember().getUser().isBot())
             return;
 
-        String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+        String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
         //force help to always work with "!" prefix
         if (e.getMessage().getContentRaw().startsWith(prefix) || e.getMessage().getContentRaw().startsWith("!help")) {
             CommandHandler.handleCommand(CommandHandler.parser.parse(e.getMessage().getContentRaw().toLowerCase(), e));
@@ -165,7 +162,7 @@ public class EventListener extends ListenerAdapter {
             if (e.getMessage().getContentRaw().endsWith("off")) {
                 for (Guild g : e.getJDA().getGuilds()) {
                     if (g.getMember(e.getAuthor()) != null) {
-                        DiscordEcho.serverSettings.get(g.getId()).alertBlackList.add(e.getAuthor().getId());
+                        DiscordEcho.guildSettings.get(g.getId()).alertBlackList.add(e.getAuthor().getId());
                     }
                 }
                 e.getChannel().sendMessage("Alerts now off, message `!alerts on` to re-enable at any time").queue();
@@ -176,7 +173,7 @@ public class EventListener extends ListenerAdapter {
             else if (e.getMessage().getContentRaw().endsWith("on")) {
                 for (Guild g : e.getJDA().getGuilds()) {
                     if (g.getMember(e.getAuthor()) != null) {
-                        DiscordEcho.serverSettings.get(g.getId()).alertBlackList.remove(e.getAuthor().getId());
+                        DiscordEcho.guildSettings.get(g.getId()).alertBlackList.remove(e.getAuthor().getId());
                     }
                 }
                 e.getChannel().sendMessage("Alerts now on, message `!alerts off` to disable at any time").queue();
@@ -236,18 +233,18 @@ public class EventListener extends ListenerAdapter {
 
             Gson gson = new Gson();
 
-            FileReader fileReader = new FileReader("settings.json");
-            BufferedReader buffered = new BufferedReader(fileReader);
+            FileReader guildSettingsFileReader = new FileReader("conf/settings.json");
+            Type guildSettingsType = new TypeToken<HashMap<String, GuildSettings>>(){}.getType();
+            DiscordEcho.guildSettings = gson.fromJson(guildSettingsFileReader, guildSettingsType);
 
-            Type type = new TypeToken<HashMap<String, ServerSettings>>(){}.getType();
+            FileReader serverSettingsFileReader = new FileReader("conf/server.json");
+            Type serverSettingsType = new TypeToken<ServerSettings>(){}.getType();
+            DiscordEcho.serverSettings = gson.fromJson(serverSettingsFileReader, serverSettingsType);
 
-            DiscordEcho.serverSettings = gson.fromJson(fileReader, type);
+            if (DiscordEcho.guildSettings == null)
+                DiscordEcho.guildSettings = new HashMap<>();
 
-            if (DiscordEcho.serverSettings == null)
-                DiscordEcho.serverSettings = new HashMap<>();
-
-            buffered.close();
-            fileReader.close();
+            guildSettingsFileReader.close();
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -255,8 +252,8 @@ public class EventListener extends ListenerAdapter {
 
 
         for (Guild g : e.getJDA().getGuilds()) {    //validate settings files
-            if (!DiscordEcho.serverSettings.containsKey(g.getId())) {
-                DiscordEcho.serverSettings.put(g.getId(), new ServerSettings(g));
+            if (!DiscordEcho.guildSettings.containsKey(g.getId())) {
+                DiscordEcho.guildSettings.put(g.getId(), new GuildSettings(g));
                 DiscordEcho.writeSettingsJson();
             }
         }

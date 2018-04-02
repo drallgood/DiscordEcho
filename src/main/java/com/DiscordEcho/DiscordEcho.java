@@ -9,6 +9,7 @@ import com.DiscordEcho.Commands.Misc.HelpCommand;
 import com.DiscordEcho.Commands.Misc.JoinCommand;
 import com.DiscordEcho.Commands.Misc.LeaveCommand;
 import com.DiscordEcho.Commands.Settings.*;
+import com.DiscordEcho.Configuration.GuildSettings;
 import com.DiscordEcho.Configuration.ServerSettings;
 import com.DiscordEcho.Listeners.AudioReceiveListener;
 import com.DiscordEcho.Listeners.AudioSendListener;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.sourceforge.lame.lowlevel.LameEncoder;
 import net.sourceforge.lame.mp3.Lame;
 import net.sourceforge.lame.mp3.MPEGMode;
@@ -36,15 +36,16 @@ import static java.lang.Thread.sleep;
 
 public class DiscordEcho
 {
-    //contains the id of every guild that we are connected to and their corresponding ServerSettings object
-    public static HashMap<String, ServerSettings> serverSettings = new HashMap<>();
+    //contains the id of every guild that we are connected to and their corresponding GuildSettings object
+    public static HashMap<String, GuildSettings> guildSettings = new HashMap<>();
+    public static ServerSettings serverSettings = new ServerSettings();
 
     public static void main(String[] args)
     {
         try
         {
             //read the bot's token from a file name "token" in the main directory
-            FileReader fr = new FileReader("shark_token");
+            FileReader fr = new FileReader("conf/shark_token");
             BufferedReader br = new BufferedReader(fr);
             String token = br.readLine();
 
@@ -114,7 +115,7 @@ public class DiscordEcho
         for (VoiceChannel v : vcs) {
             //does current interation beat old biggest?
             if (voiceChannelSize(v) > large) {
-                ServerSettings settings = serverSettings.get(v.getGuild().getId());
+                GuildSettings settings = guildSettings.get(v.getGuild().getId());
                 
                 //we only want servers that beat the autojoin minimum (so we don't have to check later)
                 if (voiceChannelSize(v) >= settings.autoJoinSettings.get(v.getId())) {
@@ -147,7 +148,7 @@ public class DiscordEcho
 
     public static void writeToFile(Guild guild, int time, TextChannel tc) {
         if (tc == null)
-            tc = guild.getTextChannelById(serverSettings.get(guild.getId()).defaultTextChannel);
+            tc = guild.getTextChannelById(guildSettings.get(guild.getId()).defaultTextChannel);
         
         AudioReceiveListener ah = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
         if (ah == null) {
@@ -183,7 +184,7 @@ public class DiscordEcho
             if (dest.length() / 1024 / 1024 < 8) {
                 final TextChannel channel = tc;
                 tc.sendFile(dest, (Message) null).queue(null, (Throwable) -> {
-                    sendMessage(guild.getTextChannelById(serverSettings.get(guild.getId()).defaultTextChannel),
+                    sendMessage(guild.getTextChannelById(guildSettings.get(guild.getId()).defaultTextChannel),
                             "I don't have permissions to send files in " + channel.getName() + "!");
                 });
 
@@ -217,9 +218,9 @@ public class DiscordEcho
     public static void writeSettingsJson() {
         try {
             Gson gson = new Gson();
-            String json = gson.toJson(DiscordEcho.serverSettings);
+            String json = gson.toJson(DiscordEcho.guildSettings);
 
-            FileWriter fw = new FileWriter("settings.json");
+            FileWriter fw = new FileWriter("conf/settings.json");
             fw.write(json);
             fw.flush();
             fw.close();
@@ -234,7 +235,7 @@ public class DiscordEcho
             if(m.getUser().isBot()) continue;
 
             //check the guild's blacklist and ignore the user if they are on it
-            if (!serverSettings.get(vc.getGuild().getId()).alertBlackList.contains(m.getUser().getId())) {
+            if (!guildSettings.get(vc.getGuild().getId()).alertBlackList.contains(m.getUser().getId())) {
 
                 //make an embeded alert message to warn the user
                 EmbedBuilder embed = new EmbedBuilder();
@@ -331,7 +332,7 @@ public class DiscordEcho
         //don't join afk channels
         if (vc == vc.getGuild().getAfkChannel()) {
             if (warning) {
-                TextChannel tc = vc.getGuild().getTextChannelById(serverSettings.get(vc.getGuild().getId()).defaultTextChannel);
+                TextChannel tc = vc.getGuild().getTextChannelById(guildSettings.get(vc.getGuild().getId()).defaultTextChannel);
                 sendMessage(tc, "I don't join afk channels!");
             }
         }
@@ -341,7 +342,7 @@ public class DiscordEcho
             vc.getGuild().getAudioManager().openAudioConnection(vc);
         } catch (Exception e) {
             if (warning) {
-                TextChannel tc = vc.getGuild().getTextChannelById(serverSettings.get(vc.getGuild().getId()).defaultTextChannel);
+                TextChannel tc = vc.getGuild().getTextChannelById(guildSettings.get(vc.getGuild().getId()).defaultTextChannel);
                 sendMessage(tc, "I don't have permission to join " + vc.getName() + "!");
                 return;
             } else {
@@ -353,7 +354,7 @@ public class DiscordEcho
         DiscordEcho.alert(vc);
         
         //initalize the audio reciever listener
-        double volume = DiscordEcho.serverSettings.get(vc.getGuild().getId()).volume;
+        double volume = DiscordEcho.guildSettings.get(vc.getGuild().getId()).volume;
         vc.getGuild().getAudioManager().setReceivingHandler(new AudioReceiveListener(volume, vc));
 
     }

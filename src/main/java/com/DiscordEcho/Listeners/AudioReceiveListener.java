@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.Arrays;
 
-import static com.DiscordEcho.DiscordEcho.serverSettings;
+import static com.DiscordEcho.DiscordEcho.guildSettings;
 
 public class AudioReceiveListener implements AudioReceiveHandler
 {
@@ -56,7 +56,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
 
         if (afkTimer >= 50 * 60 * AFK_LIMIT) {   //20ms * 50 * 60 seconds * 2 mins = 2 mins
             System.out.format("AFK detected, leaving '%s' voice channel in %s\n", voiceChannel.getName(), voiceChannel.getGuild().getName());
-            TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(serverSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
+            TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(guildSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
             DiscordEcho.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
             
             voiceChannel.getGuild().getAudioManager().closeAudioConnection();

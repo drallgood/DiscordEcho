@@ -32,7 +32,7 @@ public class JoinCommand implements Command {
         }
 
         //write out previous channel's audio if autoSave is on
-        if (e.getGuild().getAudioManager().isConnected() && DiscordEcho.serverSettings.get(e.getGuild().getId()).autoSave)
+        if (e.getGuild().getAudioManager().isConnected() && DiscordEcho.guildSettings.get(e.getGuild().getId()).autoSave)
             DiscordEcho.writeToFile(e.getGuild());
 
         DiscordEcho.joinVoiceChannel(e.getMember().getVoiceState().getChannel(), true);

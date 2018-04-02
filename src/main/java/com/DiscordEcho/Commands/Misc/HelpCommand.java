@@ -22,7 +22,7 @@ public class HelpCommand implements Command {
     @Override
     public void action(String[] args, GuildMessageReceivedEvent e) {
         if (args.length != 0) {
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
             DiscordEcho.sendMessage(e.getChannel(), usage(prefix));
             return;
         }
@@ -42,10 +42,10 @@ public class HelpCommand implements Command {
             if (command == "help") continue;
 
             Command cmd = CommandHandler.commands.get(command);
-            String prefix = DiscordEcho.serverSettings.get(e.getGuild().getId()).prefix;
+            String prefix = DiscordEcho.guildSettings.get(e.getGuild().getId()).prefix;
 
             ArrayList<String> aliases = new ArrayList<>();
-            for (Map.Entry<String, String> entry : DiscordEcho.serverSettings.get(e.getGuild().getId()).aliases.entrySet()) {
+            for (Map.Entry<String, String> entry : DiscordEcho.guildSettings.get(e.getGuild().getId()).aliases.entrySet()) {
                 if (entry.getValue().equals(command))
                     aliases.add(entry.getKey());
             }
