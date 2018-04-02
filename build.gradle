@@ -44,6 +44,12 @@ docker {
         baseImage = 'java:8-jre-alpine'
         maintainer = 'Patrice Brend\'amour "patrice@brendamour.net"'
     }
+    registryCredentials {
+        url = 'https://index.docker.io/v1/'
+        username = System.getenv('DOCKER_USER')
+        password = System.getenv('DOCKER_PASSWD')
+        email = System.getenv('DOCKER_EMAIL')
+    }
 }
 
 dockerDistTar {

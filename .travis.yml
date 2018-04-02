@@ -18,7 +18,7 @@ jobs:
       script: skip
       deploy:
         provider: script
-        script: ./gradlew -s clean dockerBuildImage
+        script: ./gradlew -s clean dockerBuildImage dockerPushImage
         on:
           tags: true
 
