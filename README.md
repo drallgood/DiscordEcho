@@ -1,6 +1,8 @@
 # Discord Echo
 
-THis little application allows you to record any Discord voice channel on your server
+[![Build Status](https://travis-ci.org/drallgood/DiscordEcho.svg?branch=master)](https://travis-ci.org/drallgood/DiscordEcho)
+
+This little application allows you to record any Discord voice channel on your server
 
 ## How to build
 
