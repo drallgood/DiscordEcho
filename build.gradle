@@ -23,6 +23,7 @@ dependencies {
     compile 'net.dv8tion:JDA:3.6.0_354'
     compile name: 'net.sourceforge.lame-3.98.4'
     compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'

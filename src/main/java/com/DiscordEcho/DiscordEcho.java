@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.entities.*;
 import net.sourceforge.lame.lowlevel.LameEncoder;
 import net.sourceforge.lame.mp3.Lame;
 import net.sourceforge.lame.mp3.MPEGMode;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.security.auth.login.LoginException;
 import javax.sound.sampled.AudioFormat;
@@ -251,18 +252,11 @@ public class DiscordEcho {
         }
     }
 
-    //generate a random string of 13 length with a namespace of around 2e23
+    //generate a random string of 16
     public static String getPJSaltString() {
-        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-        StringBuilder salt = new StringBuilder();
-        Random rnd = new Random();
-        while (salt.length() < 13) {
-            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-            salt.append(SALTCHARS.charAt(index));
-        }
-        String saltStr = salt.toString();
+        String saltStr = RandomStringUtils.randomAlphanumeric(16);
 
-        //check for a collision on the 1/2e23 chance that it matches another salt string (lul)
+        //check for a collision
         File dir = new File(DiscordEcho.serverSettings.getRecordingStoragePath());
 
         for (File f : dir.listFiles()) {
