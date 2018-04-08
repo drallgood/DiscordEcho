@@ -268,7 +268,7 @@ public class DiscordEcho {
     }
 
     //encode the passed array of PCM (uncompressed) audio to mp3 audio data
-    public static byte[] encodePcmToMp3(byte[] pcm) {
+    public static byte[] encodePcmToMp3(byte[] pcm) throws IOException {
         LameEncoder encoder = new LameEncoder(new AudioFormat(48000.0f, 16, 2, true, true), 128, MPEGMode.STEREO, Lame.QUALITY_HIGHEST, false);
         ByteArrayOutputStream mp3 = new ByteArrayOutputStream();
         byte[] buffer = new byte[encoder.getPCMBufferSize()];
@@ -276,16 +276,18 @@ public class DiscordEcho {
         int bytesToTransfer = Math.min(buffer.length, pcm.length);
         int bytesWritten;
         int currentPcmPosition = 0;
-        while (0 < (bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer))) {
-            currentPcmPosition += bytesToTransfer;
-            bytesToTransfer = Math.min(buffer.length, pcm.length - currentPcmPosition);
+        try {
+            while (0 < (bytesWritten = encoder.encodeBuffer(pcm, currentPcmPosition, bytesToTransfer, buffer))) {
+                currentPcmPosition += bytesToTransfer;
+                bytesToTransfer = Math.min(buffer.length, pcm.length - currentPcmPosition);
 
-            mp3.write(buffer, 0, bytesWritten);
+                mp3.write(buffer, 0, bytesWritten);
+            }
+            return mp3.toByteArray();
+        } finally {
+            encoder.close();
+            mp3.close();
         }
-
-        encoder.close();
-
-        return mp3.toByteArray();
     }
 
     //kill off the audio handlers and clear their memory for the given guild

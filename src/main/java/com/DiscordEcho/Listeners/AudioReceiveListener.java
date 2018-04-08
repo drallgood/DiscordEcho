@@ -7,12 +7,12 @@ import net.dv8tion.jda.core.audio.UserAudio;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import static com.DiscordEcho.DiscordEcho.guildSettings;
 
-public class AudioReceiveListener implements AudioReceiveHandler
-{
+public class AudioReceiveListener implements AudioReceiveHandler {
     public static final double STARTING_MB = 0.5;
     public static final int CAP_MB = 16;
     public static final double PCM_MINS = 2;
@@ -37,28 +37,25 @@ public class AudioReceiveListener implements AudioReceiveHandler
     }
 
     @Override
-    public boolean canReceiveCombined()
-    {
+    public boolean canReceiveCombined() {
         return canReceive;
     }
 
     @Override
-    public boolean canReceiveUser()
-    {
+    public boolean canReceiveUser() {
         return false;
     }
 
     @Override
-    public void handleCombinedAudio(CombinedAudio combinedAudio)
-    {
+    public void handleCombinedAudio(CombinedAudio combinedAudio) {
         if (combinedAudio.getUsers().size() == 0) afkTimer++;
         else afkTimer = 0;
 
+        TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(guildSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
         if (afkTimer >= 50 * 60 * AFK_LIMIT) {   //20ms * 50 * 60 seconds * 2 mins = 2 mins
             System.out.format("AFK detected, leaving '%s' voice channel in %s\n", voiceChannel.getName(), voiceChannel.getGuild().getName());
-            TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(guildSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
             DiscordEcho.sendMessage(defaultTC, "No audio for 2 minutes, leaving from AFK detection...");
-            
+
             voiceChannel.getGuild().getAudioManager().closeAudioConnection();
             DiscordEcho.killAudioHandlers(voiceChannel.getGuild());
             return;
@@ -66,12 +63,15 @@ public class AudioReceiveListener implements AudioReceiveHandler
 
         if (uncompIndex == uncompVoiceData.length / 2 || uncompIndex == uncompVoiceData.length) {
             new Thread(() -> {
-
-                if (uncompIndex < uncompVoiceData.length / 2)  //first half
-                    addCompVoiceData(DiscordEcho.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, 0, uncompVoiceData.length / 2)));
-                else
-                    addCompVoiceData(DiscordEcho.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, uncompVoiceData.length / 2, uncompVoiceData.length )));
-
+                try {
+                    if (uncompIndex < uncompVoiceData.length / 2)  //first half
+                        addCompVoiceData(DiscordEcho.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, 0, uncompVoiceData.length / 2)));
+                    else
+                        addCompVoiceData(DiscordEcho.encodePcmToMp3(Arrays.copyOfRange(uncompVoiceData, uncompVoiceData.length / 2, uncompVoiceData.length)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    DiscordEcho.sendMessage(defaultTC, "Error storing mp3");
+                }
             }).start();
 
             if (uncompIndex == uncompVoiceData.length)
@@ -95,7 +95,13 @@ public class AudioReceiveListener implements AudioReceiveHandler
             remaining[i] = uncompVoiceData[start + i];
         }
 
-        addCompVoiceData(DiscordEcho.encodePcmToMp3(remaining));
+        try {
+            addCompVoiceData(DiscordEcho.encodePcmToMp3(remaining));
+        } catch (IOException e) {
+            e.printStackTrace();
+            TextChannel defaultTC = voiceChannel.getGuild().getTextChannelById(guildSettings.get(voiceChannel.getGuild().getId()).defaultTextChannel);
+            DiscordEcho.sendMessage(defaultTC, "Error storing mp3");
+        }
 
         byte[] orderedVoiceData;
         if (overwriting) {
@@ -105,7 +111,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
             compIndex = 0;
         }
 
-        for (int i=0; i < orderedVoiceData.length; i++) {
+        for (int i = 0; i < orderedVoiceData.length; i++) {
             if (compIndex + i < orderedVoiceData.length)
                 orderedVoiceData[i] = compVoiceData[compIndex + i];
             else
@@ -124,7 +130,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
             if (compIndex >= compVoiceData.length && compVoiceData.length != 1024 * 1024 * CAP_MB) {    //cap at 16MB
 
                 byte[] temp = new byte[compVoiceData.length * 2];
-                for (int i=0; i < compVoiceData.length; i++)
+                for (int i = 0; i < compVoiceData.length; i++)
                     temp[i] = compVoiceData[i];
 
                 compVoiceData = temp;
@@ -158,7 +164,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
         canReceive = false;
 
         if (time > PCM_MINS * 60 * 2) {     //2 mins
-            time = (int)(PCM_MINS * 60 * 2);
+            time = (int) (PCM_MINS * 60 * 2);
         }
         int requestSize = 3840 * 50 * time;
         byte[] voiceData = new byte[requestSize];
@@ -176,5 +182,6 @@ public class AudioReceiveListener implements AudioReceiveHandler
     }
 
     @Override
-    public void handleUserAudio(UserAudio userAudio) {}
+    public void handleUserAudio(UserAudio userAudio) {
+    }
 }
