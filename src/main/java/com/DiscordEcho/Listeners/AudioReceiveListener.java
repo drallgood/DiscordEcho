@@ -118,7 +118,6 @@ public class AudioReceiveListener implements AudioReceiveHandler {
                 orderedVoiceData[i] = compVoiceData[compIndex + i - orderedVoiceData.length];
         }
 
-        wipeMemory();
         canReceive = true;
 
         return orderedVoiceData;
@@ -149,17 +148,6 @@ public class AudioReceiveListener implements AudioReceiveHandler {
         }
     }
 
-
-    public void wipeMemory() {
-        System.out.format("Wiped recording data in %s on %s", voiceChannel.getName(), voiceChannel.getGuild().getName());
-        uncompIndex = 0;
-        compIndex = 0;
-
-        compVoiceData = new byte[1024 * 1024 / 2];
-        System.gc();
-    }
-
-
     public byte[] getUncompVoice(int time) {
         canReceive = false;
 
@@ -175,8 +163,7 @@ public class AudioReceiveListener implements AudioReceiveHandler {
             else
                 voiceData[i] = uncompVoiceData[uncompIndex + i - voiceData.length];
         }
-
-        wipeMemory();
+        
         canReceive = true;
         return voiceData;
     }
