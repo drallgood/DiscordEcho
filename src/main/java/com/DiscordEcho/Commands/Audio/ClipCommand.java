@@ -61,7 +61,7 @@ public class ClipCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Saves a clip of the specified length and outputs it in the current or specified text channel (max 120 seconds)";
     }
 

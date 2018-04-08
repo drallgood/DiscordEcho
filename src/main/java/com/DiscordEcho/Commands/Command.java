@@ -6,6 +6,6 @@ public interface Command {
     Boolean called(String[] args, GuildMessageReceivedEvent e);
     void action(String[] args, GuildMessageReceivedEvent e);
     String usage(String prefix);
-    String descripition();
+    String description();
     void executed(boolean success, GuildMessageReceivedEvent e);
 }

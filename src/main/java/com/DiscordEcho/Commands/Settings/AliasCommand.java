@@ -43,7 +43,7 @@ public class AliasCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Creates an alias, or alternate name, to a command for customization.";
     }
 

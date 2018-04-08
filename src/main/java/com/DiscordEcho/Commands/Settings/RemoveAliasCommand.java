@@ -37,7 +37,7 @@ public class RemoveAliasCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Removes an alias from a command.";
     }
 

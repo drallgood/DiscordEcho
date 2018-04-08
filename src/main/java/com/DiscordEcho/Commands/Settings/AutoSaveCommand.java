@@ -36,7 +36,7 @@ public class AutoSaveCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Toggles the option to automatically save and send all files at the end of each session - not just saved or clipped files";
     }
 

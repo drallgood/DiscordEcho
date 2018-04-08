@@ -49,7 +49,7 @@ public class SaveCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Saves the current recording and outputs it to the current or specified text chats (caps at 16MB)";
     }
 

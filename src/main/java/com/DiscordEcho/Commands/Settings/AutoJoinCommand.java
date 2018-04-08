@@ -90,7 +90,7 @@ public class AutoJoinCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Sets the number of players for the bot to auto-join a voice channel, or disables auto-joining. All will apply number to all voice channels.";
     }
 

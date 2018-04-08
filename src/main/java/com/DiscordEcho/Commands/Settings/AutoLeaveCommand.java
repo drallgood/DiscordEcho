@@ -80,7 +80,7 @@ public class AutoLeaveCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Sets the number of players for the bot to auto-leave a voice channel, or disables auto-leaving.  All will apply number to all voice channels.";
     }
 

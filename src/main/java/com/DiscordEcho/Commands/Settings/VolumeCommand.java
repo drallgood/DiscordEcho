@@ -49,7 +49,7 @@ public class VolumeCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Sets the percentage volume to record at, from 1-100%";
     }
 

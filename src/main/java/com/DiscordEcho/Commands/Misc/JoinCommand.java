@@ -44,7 +44,7 @@ public class JoinCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Force the bot to join and record your current channel";
     }
 

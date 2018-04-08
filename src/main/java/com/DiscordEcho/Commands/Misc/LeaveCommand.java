@@ -39,7 +39,7 @@ public class LeaveCommand implements Command {
     }
 
     @Override
-    public String descripition() {
+    public String description() {
         return "Force the bot to leave it's current channel";
     }
 
