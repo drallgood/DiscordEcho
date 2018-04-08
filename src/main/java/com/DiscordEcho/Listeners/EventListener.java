@@ -187,7 +187,7 @@ public class EventListener extends ListenerAdapter {
         } else if (e.getMessage().getContent().startsWith("!help")) {
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setAuthor("Discord Echo", "http://DiscordEcho.com/", e.getJDA().getSelfUser().getAvatarUrl());
+            embed.setAuthor("Discord Echo", DiscordEcho.serverSettings.getHostUrl(), e.getJDA().getSelfUser().getAvatarUrl());
             embed.setColor(Color.RED);
             embed.setTitle("Currently in beta, being actively developed and tested. Expect bugs.");
             embed.setDescription("Join my guild for updates - https://discord.gg/JWNFSZJ");
@@ -258,12 +258,11 @@ public class EventListener extends ListenerAdapter {
             }
         }
 
-        File dir = new File("/var/www/html/");
+        File dir = new File(DiscordEcho.serverSettings.getRecordingStoragePath());
         if (!dir.exists()) {
-            dir = new File("recordings/");
             dir.mkdirs();
-            System.out.format("ONLINE: Saving recordings to %s\n", dir.getAbsolutePath());
         }
+        System.out.format("ONLINE: Saving recordings to %s\n", dir.getAbsolutePath());
 
         File[] files = dir.listFiles();
 

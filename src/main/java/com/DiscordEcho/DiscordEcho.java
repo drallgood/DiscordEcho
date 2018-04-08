@@ -34,16 +34,13 @@ import java.util.List;
 
 import static java.lang.Thread.sleep;
 
-public class DiscordEcho
-{
+public class DiscordEcho {
     //contains the id of every guild that we are connected to and their corresponding GuildSettings object
     public static HashMap<String, GuildSettings> guildSettings = new HashMap<>();
     public static ServerSettings serverSettings = new ServerSettings();
 
-    public static void main(String[] args)
-    {
-        try
-        {
+    public static void main(String[] args) {
+        try {
             //read the bot's token from a file name "token" in the main directory
             FileReader fr = new FileReader("conf/shark_token");
             BufferedReader br = new BufferedReader(fr);
@@ -54,14 +51,10 @@ public class DiscordEcho
                     .setToken(token)
                     .addEventListener(new EventListener())
                     .buildBlocking();
-    }
-        catch (LoginException e)
-        {
+        } catch (LoginException e) {
             //If anything goes wrong in terms of authentication, this is the exception that will represent it
             e.printStackTrace();
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             //Due to the fact that buildBlocking is a blocking method, one which waits until JDA is fully loaded,
             // the waiting can be interrupted. This is the exception that would fire in that situation.
             //As a note: in this extremely simplified example this will never occur. In fact, this will never occur unless
@@ -81,18 +74,18 @@ public class DiscordEcho
 
         //register commands and their aliases
         CommandHandler.commands.put("help", new HelpCommand());
-        
+
         CommandHandler.commands.put("join", new JoinCommand());
         CommandHandler.commands.put("leave", new LeaveCommand());
-        
+
         CommandHandler.commands.put("save", new SaveCommand());
         CommandHandler.commands.put("clip", new ClipCommand());
         CommandHandler.commands.put("echo", new EchoCommand());
         CommandHandler.commands.put("miab", new MessageInABottleCommand());
-                
+
         CommandHandler.commands.put("autojoin", new AutoJoinCommand());
         CommandHandler.commands.put("autoleave", new AutoLeaveCommand());
-        
+
         CommandHandler.commands.put("prefix", new PrefixCommand());
         CommandHandler.commands.put("alias", new AliasCommand());
         CommandHandler.commands.put("removealias", new RemoveAliasCommand());
@@ -102,7 +95,6 @@ public class DiscordEcho
         CommandHandler.commands.put("alerts", new AlertsCommand());
 
     }
-
 
 
     //UTILITY FUNCTIONS
@@ -116,7 +108,7 @@ public class DiscordEcho
             //does current interation beat old biggest?
             if (voiceChannelSize(v) > large) {
                 GuildSettings settings = guildSettings.get(v.getGuild().getId());
-                
+
                 //we only want servers that beat the autojoin minimum (so we don't have to check later)
                 if (voiceChannelSize(v) >= settings.autoJoinSettings.get(v.getId())) {
                     biggest = v;
@@ -132,8 +124,8 @@ public class DiscordEcho
         if (vc == null) return 0;
 
         int i = 0;
-        for (Member m : vc.getMembers()){
-            if(!m.getUser().isBot()) i++;
+        for (Member m : vc.getMembers()) {
+            if (!m.getUser().isBot()) i++;
         }
         return i;
     }
@@ -149,21 +141,17 @@ public class DiscordEcho
     public static void writeToFile(Guild guild, int time, TextChannel tc) {
         if (tc == null)
             tc = guild.getTextChannelById(guildSettings.get(guild.getId()).defaultTextChannel);
-        
+
         AudioReceiveListener ah = (AudioReceiveListener) guild.getAudioManager().getReceiveHandler();
         if (ah == null) {
             sendMessage(tc, "I wasn't recording!");
             return;
         }
 
-        File dest;
+        ;
         try {
 
-            if (new File("/var/www/html/").exists())
-                dest = new File("/var/www/html/" + getPJSaltString() + ".mp3");
-            else
-                dest = new File("recordings/" + getPJSaltString() + ".mp3");
-
+            File dest = new File(DiscordEcho.serverSettings.getRecordingStoragePath() + getPJSaltString() + ".mp3");
             byte[] voiceData;
 
             if (time > 0 && time <= ah.PCM_MINS * 60 * 2) {
@@ -189,7 +177,11 @@ public class DiscordEcho
                 });
 
                 new Thread(() -> {
-                    try { sleep(1000 * 20); } catch (Exception ex) { ex.printStackTrace();}    //20 second life for files set to discord (no need to save)
+                    try {
+                        sleep(1000 * 20);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }    //20 second life for files set to discord (no need to save)
 
                     dest.delete();
                     System.out.println("\tDeleting file " + dest.getName() + "...");
@@ -197,10 +189,14 @@ public class DiscordEcho
                 }).start();
 
             } else {
-                sendMessage(tc, "http://DiscordEcho.com/" + dest.getName());
+                sendMessage(tc, DiscordEcho.serverSettings.getHostUrl() + dest.getName());
 
                 new Thread(() -> {
-                    try { sleep(1000 * 60 * 60); } catch (Exception ex) {ex.printStackTrace();}    //1 hour life for files stored on web server
+                    try {
+                        sleep(1000 * 60 * 60 * DiscordEcho.serverSettings.getFileTTLinHours());
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
 
                     dest.delete();
                     System.out.println("\tDeleting file " + dest.getName() + "...");
@@ -225,14 +221,16 @@ public class DiscordEcho
             fw.flush();
             fw.close();
 
-        } catch (Exception ex) {ex.printStackTrace();}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     //sends alert DM to anyone in the given voicechannel who isn't on the blacklist
     public static void alert(VoiceChannel vc) {
         for (Member m : vc.getMembers()) {
             //ignore bots
-            if(m.getUser().isBot()) continue;
+            if (m.getUser().isBot()) continue;
 
             //check the guild's blacklist and ignore the user if they are on it
             if (!guildSettings.get(vc.getGuild().getId()).alertBlackList.contains(m.getUser().getId())) {
@@ -263,17 +261,15 @@ public class DiscordEcho
             salt.append(SALTCHARS.charAt(index));
         }
         String saltStr = salt.toString();
-        
+
         //check for a collision on the 1/2e23 chance that it matches another salt string (lul)
-        File dir = new File("/var/www/html/");
-        if (!dir.exists())
-            dir = new File("recordings/");
-        
+        File dir = new File(DiscordEcho.serverSettings.getRecordingStoragePath());
+
         for (File f : dir.listFiles()) {
             if (f.getName().equals(saltStr))
                 saltStr = getPJSaltString();
         }
-        
+
         return saltStr;
     }
 
@@ -352,7 +348,7 @@ public class DiscordEcho
 
         //send alert to correct users in the voice channel
         DiscordEcho.alert(vc);
-        
+
         //initalize the audio reciever listener
         double volume = DiscordEcho.guildSettings.get(vc.getGuild().getId()).volume;
         vc.getGuild().getAudioManager().setReceivingHandler(new AudioReceiveListener(volume, vc));
