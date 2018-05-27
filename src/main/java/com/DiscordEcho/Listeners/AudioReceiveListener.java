@@ -14,7 +14,6 @@ import static com.DiscordEcho.DiscordEcho.guildSettings;
 public class AudioReceiveListener implements AudioReceiveHandler
 {
     public static final double STARTING_MB = 0.5;
-    //public static final int CAP_MB = 16;
     public static final double PCM_MINS = 2;
     public double AFK_LIMIT = 2;
     public boolean canReceive = true;
