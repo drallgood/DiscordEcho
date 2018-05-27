@@ -7,6 +7,8 @@ public class ServerSettings {
 
     private String recordingStoragePath = "recordings/";
 
+    private int recordingCapInMb = 16;
+
     public String getHostUrl() {
         return hostUrl;
     }
@@ -17,5 +19,9 @@ public class ServerSettings {
 
     public String getRecordingStoragePath() {
         return recordingStoragePath;
+    }
+
+    public int getRecordingCapInMb() {
+        return recordingCapInMb;
     }
 }
