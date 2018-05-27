@@ -14,7 +14,7 @@ import static com.DiscordEcho.DiscordEcho.guildSettings;
 public class AudioReceiveListener implements AudioReceiveHandler
 {
     public static final double STARTING_MB = 0.5;
-    public static final int CAP_MB = 16;
+    //public static final int CAP_MB = 16;
     public static final double PCM_MINS = 2;
     public double AFK_LIMIT = 2;
     public boolean canReceive = true;
@@ -121,7 +121,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
 
     public void addCompVoiceData(byte[] compressed) {
         for (byte b : compressed) {
-            if (compIndex >= compVoiceData.length && compVoiceData.length != 1024 * 1024 * CAP_MB) {    //cap at 16MB
+            if (compIndex >= compVoiceData.length && compVoiceData.length != 1024 * 1024 * DiscordEcho.serverSettings.getRecordingCapInMb()) {    //cap at 16MB
 
                 byte[] temp = new byte[compVoiceData.length * 2];
                 for (int i=0; i < compVoiceData.length; i++)
@@ -129,7 +129,7 @@ public class AudioReceiveListener implements AudioReceiveHandler
 
                 compVoiceData = temp;
 
-            } else if (compIndex >= compVoiceData.length && compVoiceData.length == 1024 * 1024 * CAP_MB) {
+            } else if (compIndex >= compVoiceData.length && compVoiceData.length == 1024 * 1024 * DiscordEcho.serverSettings.getRecordingCapInMb()) {
                 compIndex = 0;
 
                 if (!overwriting) {
