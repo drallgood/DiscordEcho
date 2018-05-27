@@ -237,10 +237,6 @@ public class EventListener extends ListenerAdapter {
             Type guildSettingsType = new TypeToken<HashMap<String, GuildSettings>>(){}.getType();
             DiscordEcho.guildSettings = gson.fromJson(guildSettingsFileReader, guildSettingsType);
 
-            FileReader serverSettingsFileReader = new FileReader("conf/server.json");
-            Type serverSettingsType = new TypeToken<ServerSettings>(){}.getType();
-            DiscordEcho.serverSettings = gson.fromJson(serverSettingsFileReader, serverSettingsType);
-
             if (DiscordEcho.guildSettings == null)
                 DiscordEcho.guildSettings = new HashMap<>();
 
