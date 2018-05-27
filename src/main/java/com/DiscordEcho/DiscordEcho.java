@@ -15,6 +15,7 @@ import com.DiscordEcho.Listeners.AudioReceiveListener;
 import com.DiscordEcho.Listeners.AudioSendListener;
 import com.DiscordEcho.Listeners.EventListener;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -28,6 +29,7 @@ import javax.security.auth.login.LoginException;
 import javax.sound.sampled.AudioFormat;
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Type;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.List;
@@ -40,10 +42,19 @@ public class DiscordEcho {
     public static ServerSettings serverSettings = new ServerSettings();
 
     public static void main(String[] args) {
-        try {
-            //read the bot's token from a file name "token" in the main directory
-            FileReader fr = new FileReader("conf/shark_token");
-            BufferedReader br = new BufferedReader(fr);
+        try (FileReader serverSettingsFileReader = new FileReader("conf/server.json")) {
+            Type serverSettingsType = new TypeToken<ServerSettings>() {
+            }.getType();
+            Gson gson = new Gson();
+            DiscordEcho.serverSettings = gson.fromJson(serverSettingsFileReader, serverSettingsType);
+            System.out.format("HostURL: %s\n", DiscordEcho.serverSettings.getHostUrl());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //read the bot's token from a file name "token" in the main directory
+        try (FileReader fr = new FileReader("conf/shark_token"); BufferedReader br = new BufferedReader(fr)) {
+
             String token = br.readLine();
 
             //create bot instance
@@ -60,39 +71,63 @@ public class DiscordEcho {
             //As a note: in this extremely simplified example this will never occur. In fact, this will never occur unless
             // you use buildBlocking in a thread that has the possibility of being interrupted (async thread usage and interrupts)
             e.printStackTrace();
-        }
-//        catch (RateLimitedException e)
-//        {
-//            //The login process is one which can be ratelimited. If you attempt to login in multiple times, in rapid succession
-//            // (multiple times a second), you would hit the ratelimit, and would see this exception.
-//            //As a note: It is highly unlikely that you will ever see the exception here due to how infrequent login is.
-//            e.printStackTrace();
-//        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         //register commands and their aliases
-        CommandHandler.commands.put("help", new HelpCommand());
+        CommandHandler.commands.put("help", new
 
-        CommandHandler.commands.put("join", new JoinCommand());
-        CommandHandler.commands.put("leave", new LeaveCommand());
+                HelpCommand());
 
-        CommandHandler.commands.put("save", new SaveCommand());
-        CommandHandler.commands.put("clip", new ClipCommand());
-        CommandHandler.commands.put("echo", new EchoCommand());
-        CommandHandler.commands.put("miab", new MessageInABottleCommand());
+        CommandHandler.commands.put("join", new
 
-        CommandHandler.commands.put("autojoin", new AutoJoinCommand());
-        CommandHandler.commands.put("autoleave", new AutoLeaveCommand());
+                JoinCommand());
+        CommandHandler.commands.put("leave", new
 
-        CommandHandler.commands.put("prefix", new PrefixCommand());
-        CommandHandler.commands.put("alias", new AliasCommand());
-        CommandHandler.commands.put("removealias", new RemoveAliasCommand());
-        CommandHandler.commands.put("volume", new VolumeCommand());
-        CommandHandler.commands.put("autosave", new AutoSaveCommand());
-        CommandHandler.commands.put("savelocation", new SaveLocationCommand());
-        CommandHandler.commands.put("alerts", new AlertsCommand());
+                LeaveCommand());
+
+        CommandHandler.commands.put("save", new
+
+                SaveCommand());
+        CommandHandler.commands.put("clip", new
+
+                ClipCommand());
+        CommandHandler.commands.put("echo", new
+
+                EchoCommand());
+        CommandHandler.commands.put("miab", new
+
+                MessageInABottleCommand());
+
+        CommandHandler.commands.put("autojoin", new
+
+                AutoJoinCommand());
+        CommandHandler.commands.put("autoleave", new
+
+                AutoLeaveCommand());
+
+        CommandHandler.commands.put("prefix", new
+
+                PrefixCommand());
+        CommandHandler.commands.put("alias", new
+
+                AliasCommand());
+        CommandHandler.commands.put("removealias", new
+
+                RemoveAliasCommand());
+        CommandHandler.commands.put("volume", new
+
+                VolumeCommand());
+        CommandHandler.commands.put("autosave", new
+
+                AutoSaveCommand());
+        CommandHandler.commands.put("savelocation", new
+
+                SaveLocationCommand());
+        CommandHandler.commands.put("alerts", new
+
+                AlertsCommand());
 
     }
 
